@@ -1,5 +1,11 @@
 # DeepSeek-V3 Distributed Training
 
+[![CI](https://github.com/eljandoubi/DeepSeek-V3-Distributed-Training/actions/workflows/ci.yml/badge.svg)](https://github.com/eljandoubi/DeepSeek-V3-Distributed-Training/actions/workflows/ci.yml)
+[![Python](https://img.shields.io/badge/python-3.14%2B-blue.svg)](https://www.python.org/)
+[![PyTorch](https://img.shields.io/badge/PyTorch-2.13%2B-ee4c2c.svg)](https://pytorch.org/)
+[![License: Apache 2.0](https://img.shields.io/badge/license-Apache%202.0-blue.svg)](LICENSE)
+[![Code style: ruff](https://img.shields.io/badge/code%20style-ruff-261230.svg)](https://github.com/astral-sh/ruff)
+
 A lightweight, [torchtitan](https://github.com/pytorch/torchtitan)-inspired PyTorch framework for pre-training
 DeepSeek-V3-style Mixture-of-Experts language models at scale, using native `torch.distributed` (DTensor,
 `fully_shard`, pipelining) parallelism primitives — no external parallelism frameworks required.
@@ -8,6 +14,19 @@ This repository re-implements the composable, "N-D parallelism" architecture pio
 (FSDP2/`fully_shard` + DTensor + native pipeline parallel) and applies it to DeepSeek-V3's architecture:
 Multi-Head Latent Attention (MLA), fine-grained DeepSeekMoE with auxiliary-loss-free load balancing,
 and YaRN-extended rotary embeddings.
+
+## Table of contents
+
+- [Features](#features)
+- [Architecture at a glance](#architecture-at-a-glance)
+- [Repository layout](#repository-layout)
+- [Papers behind each component](#papers-behind-each-component)
+- [Quick start](#quick-start)
+- [Running on SLURM](#running-on-slurm)
+- [Testing](#testing)
+- [Continuous integration](#continuous-integration)
+- [Acknowledgements](#acknowledgements)
+- [License](#license)
 
 ## Features
 
@@ -160,6 +179,24 @@ uv run pytest tests/ -v
 Coverage includes: MLA attention (with and without the KV cache / weight absorption), RoPE/YaRN,
 DeepSeekMoE routing and grouped experts, the loss function, LR scheduler, optimizer container, and
 `ParallelDims`/distributed-reduction primitives over multi-process `gloo` process groups.
+
+## Continuous integration
+
+Every push and pull request to `main` runs via [GitHub Actions](.github/workflows/ci.yml):
+
+| Job | What it checks |
+|---|---|
+| **Lint** | [`ruff check`](https://github.com/astral-sh/ruff) and `ruff format --check` for style/correctness, without installing the (heavy) GPU-only dependencies |
+| **Test** | `uv sync --group dev` followed by `pytest tests/ -v` on CPU (`gloo` backend) |
+
+Both jobs use [`astral-sh/setup-uv`](https://github.com/astral-sh/setup-uv) with dependency caching for fast,
+reproducible installs. Run the same checks locally before pushing:
+
+```bash
+uv run ruff check .
+uv run ruff format --check .
+uv run pytest tests/ -v
+```
 
 ## Acknowledgements
 
