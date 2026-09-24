@@ -24,6 +24,7 @@ and YaRN-extended rotary embeddings.
 - [Quick start](#quick-start)
 - [Running on SLURM](#running-on-slurm)
 - [Testing](#testing)
+- [Development](#development)
 - [Continuous integration](#continuous-integration)
 - [Acknowledgements](#acknowledgements)
 - [License](#license)
@@ -180,6 +181,24 @@ Coverage includes: MLA attention (with and without the KV cache / weight absorpt
 DeepSeekMoE routing and grouped experts, the loss function, LR scheduler, optimizer container, and
 `ParallelDims`/distributed-reduction primitives over multi-process `gloo` process groups.
 
+## Development
+
+A [`justfile`](justfile) wraps the commands above for local development. Install
+[`just`](https://github.com/casey/just), then run `just` (or `just --list`) to see all recipes:
+
+| Recipe | What it runs |
+|---|---|
+| `just sync` | `uv sync --group dev` |
+| `just lint` | `uv run ruff check .` |
+| `just fix` | `uv run ruff check --fix .` |
+| `just fmt` | `uv run ruff format .` |
+| `just fmt-check` | `uv run ruff format --check .` |
+| `just check` | `lint` + `fmt-check` (same checks as CI's lint job) |
+| `just test [pytest-args]` | `uv run pytest tests/ -v [pytest-args]` |
+| `just train <config> [nproc]` | `src_CONFIG=<config> uv run torchrun --nproc_per_node=<nproc> -m src.train` |
+| `just slurm <config> [nodes] [gpus]` | `src_CONFIG=<config> sbatch --nodes=<nodes> --gpus-per-node=<gpus> scripts/slurm_train.sbatch` |
+| `just clean` | Remove `.pytest_cache`, `.ruff_cache`, `__pycache__`, `dist`, `build` |
+
 ## Continuous integration
 
 Every push and pull request to `main` runs via [GitHub Actions](.github/workflows/ci.yml):
@@ -197,6 +216,8 @@ uv run ruff check .
 uv run ruff format --check .
 uv run pytest tests/ -v
 ```
+
+Or, equivalently: `just check && just test`.
 
 ## Acknowledgements
 
