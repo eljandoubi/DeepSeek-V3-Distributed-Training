@@ -3,7 +3,7 @@
 Per the DeepSeek-V2/V3 papers, MLA compresses keys and values into a shared low-rank
 latent vector `c^KV` (dimension `kv_lora_rank`) plus a small decoupled rotary key
 `k^R` (dimension `qk_rope_head_dim`). Both are identical across all attention heads,
-so caching only `[latent, k_rope]` -- as `MLAKVCache` does -- shrinks the KV-cache
+so caching only `[latent, k_rope]`, as `MLAKVCache` does, shrinks the KV-cache
 footprint by roughly:
 
     n_heads * (qk_nope_head_dim + v_head_dim) / (kv_lora_rank + qk_rope_head_dim)
@@ -29,7 +29,7 @@ Safety: this cache is strictly an inference-time optimization. `Attention.forwar
 cache is passed while the module is in training mode, so it can never silently affect
 gradients or interact with the distributed training loop (DP/FSDP/TP/PP/CP) in
 `src/train.py`. The cache itself is a plain object built via `DeepSeekV3Model.build_kv_cache`
-and passed explicitly as a `forward` argument -- it is never attached as a submodule/buffer
+and passed explicitly as a `forward` argument; it is never attached as a submodule/buffer
 of the trained model, so it is never touched by FSDP/DDP wrapping, `torch.compile`, or
 checkpointing of the training model.
 """

@@ -287,7 +287,7 @@ class Attention(nn.Module):
         """Forward pass using the weight-absorbed projections produced by `absorb_mla_weights`.
 
         When `kv_cache` is provided, attention is computed directly against the cached
-        compressed latent + rotary key -- per-head keys/values are never materialized for
+        compressed latent + rotary key; per-head keys/values are never materialized for
         cached (past) tokens, avoiding the repeated `wkv_b` up-projection that the vanilla
         `forward` path pays on every decoding step.
 
